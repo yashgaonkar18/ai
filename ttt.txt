@@ -1,55 +1,60 @@
+import random
+
 def print_board(board):
     for row in board:
         print(" | ".join(row))
-        print("-" * 5)
+        print("-" * 9)
 
 def check_winner(board, player):
-    # Check rows, columns and diagonals
-    for row in board:
-        if all(cell == player for cell in row):
+    for i in range(3):
+        if all(board[i][j] == player for j in range(3)) or all(board[j][i] == player for j in range(3)):
             return True
-
-    for col in range(3):
-        if all(board[row][col] == player for row in range(3)):
-            return True
-
-    if all(board[i][i] == player for i in range(3)) or \
-       all(board[i][2 - i] == player for i in range(3)):
+    if all(board[i][i] == player for i in range(3)) or all(board[i][2 - i] == player for i in range(3)):
         return True
-
     return False
 
 def is_full(board):
     return all(cell != " " for row in board for cell in row)
 
-def tic_tac_toe():
-    board = [[" " for _ in range(3)] for _ in range(3)]
-    current_player = "X"
+def get_empty_cells(board):
+    return [(i, j) for i in range(3) for j in range(3) if board[i][j] == " "]
 
-    print("Tic Tac Toe Game!")
+def random_move(board):
+    return random.choice(get_empty_cells(board))
+
+def tic_tac_toe():
+    board = [[" "]*3 for _ in range(3)]
+    human, computer = "X", "O"
+
+    print("Welcome to Tic-Tac-Toe (Easy Mode)!")
     print_board(board)
 
-    while True:
-        print(f"\n{current_player}'s turn.")
-        row = int(input("Enter row (0, 1, or 2): "))
-        col = int(input("Enter column (0, 1, or 2): "))
+    for turn in range(9):
+        if turn % 2 == 0:  # Human's turn
+            while True:
+                try:
+                    row, col = map(int, input("Enter row and column (0-2): ").split())
+                    if board[row][col] == " ":
+                        board[row][col] = human
+                        break
+                    print("Cell occupied! Try again.")
+                except:
+                    print("Invalid input! Enter numbers 0-2.")
+        else:  # Computer's turn (random move)
+            row, col = random_move(board)
+            board[row][col] = computer
+            print(f"Computer placed {computer} at ({row}, {col})")
 
-        if board[row][col] != " ":
-            print("Cell already taken. Try again.")
-            continue
-
-        board[row][col] = current_player
         print_board(board)
 
-        if check_winner(board, current_player):
-            print(f"\nPlayer {current_player} wins!")
-            break
-        elif is_full(board):
-            print("\nIt's a draw!")
-            break
+        if check_winner(board, human): 
+            print("You win! 🎉")
+            return
+        if check_winner(board, computer): 
+            print("Computer wins! 😈")
+            return
+        if is_full(board):
+            print("It's a tie! 🤝")
+            return
 
-        # Switch player
-        current_player = "O" if current_player == "X" else "X"
-
-# Run the game
 tic_tac_toe()
