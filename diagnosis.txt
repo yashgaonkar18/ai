@@ -1,0 +1,64 @@
+% Declare dynamic predicates
+:- dynamic(response/3).
+
+% Disease rules
+flu(X) :-
+    has_symptom(X, fever),
+    has_symptom(X, cough),
+    has_symptom(X, body_aches),
+    has_symptom(X, fatigue).
+
+influenza(X) :-
+    flu(X),
+    has_symptom(X, chills),
+    has_symptom(X, headache),
+    has_symptom(X, muscle_pain),
+    has_symptom(X, sore_throat).
+
+food_poisoning(X) :-
+    has_symptom(X, nausea),
+    has_symptom(X, vomiting),
+    has_symptom(X, diarrhea),
+    has_symptom(X, abdominal_pain).
+
+allergy(X) :-
+    has_symptom(X, rash),
+    has_symptom(X, itching),
+    has_symptom(X, sneezing),
+    has_symptom(X, watery_eyes).
+
+asthma(X) :-
+    has_symptom(X, cough),
+    has_symptom(X, difficulty_breathing),
+    has_symptom(X, wheezing).
+
+% Symptom asking and storing
+has_symptom(Person, Symptom) :-
+    response(Person, Symptom, yes), !.
+
+has_symptom(Person, Symptom) :-
+    \+ response(Person, Symptom, _),
+    format('Does ~w have ~w? (yes/no): ', [Person, Symptom]),
+    read(Response),
+    assert(response(Person, Symptom, Response)),
+    Response = yes.
+
+% Diagnosis
+diagnose(Person) :-
+    ( flu(Person) ->
+        write(Person), write(' likely has the flu.'), nl,
+        write('Take rest and drink plenty of fluids.');
+      asthma(Person) ->
+        write(Person), write(' likely has asthma.'), nl,
+        write('Use inhalers and avoid triggers such as smoke and dust.');
+      allergy(Person) ->
+        write(Person), write(' likely has an allergy.'), nl,
+        write('Take antihistamines and avoid allergens like pollen and pet dander.');
+      influenza(Person) ->
+        write(Person), write(' likely has influenza.'), nl,
+        write('Follow medical advice and take prescribed medication.');
+      food_poisoning(Person) ->
+        write(Person), write(' likely has food poisoning.'), nl,
+        write('Drink plenty of fluids and seek medical attention if symptoms persist.');
+      write('Unable to diagnose '), write(Person), write('. Please consult a healthcare professional.')
+    ).

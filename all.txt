@@ -1,0 +1,615 @@
+# --------- Depth Limited Search (DLS) ---------
+def dls(graph, start, limit):
+    visited = set()
+    stack = [(start, 0)]
+
+    while stack:
+        node, depth = stack.pop()
+        if node not in visited and depth <= limit:
+            print(node, end=" ")
+            visited.add(node)
+            for neighbor in reversed(graph[node]):
+                if neighbor not in visited:
+                    stack.append((neighbor, depth + 1))
+
+# Input and execution
+graph = {}
+edges = int(input("Enter the number of edges: "))
+for _ in range(edges):
+    u, v = input("Enter edge (u v): ").split()
+    graph.setdefault(u, []).append(v)
+    graph.setdefault(v, []).append(u)
+
+start_node = input("Enter start node: ")
+depth_limit = int(input("Enter depth limit: "))
+print(f"DLS traversal (limit {depth_limit}):")
+dls(graph, start_node, depth_limit)
+
+
+# --------- Depth First Search (DFS) ---------
+def dfs(graph, start):
+    visited = set()
+    stack = [start]
+
+    while stack:
+        node = stack.pop()
+        if node not in visited:
+            print(node, end=" ")
+            visited.add(node)
+            for neighbor in reversed(graph[node]):
+                if neighbor not in visited:
+                    stack.append(neighbor)
+
+# Input and execution
+graph = {}
+edges = int(input("Enter the number of edges: "))
+for _ in range(edges):
+    u, v = input("Enter edge (u v): ").split()
+    graph.setdefault(u, []).append(v)
+    graph.setdefault(v, []).append(u)
+
+start_node = input("Enter start node: ")
+print("DFS traversal:")
+dfs(graph, start_node)
+
+# --------- Breadth First Search (BFS) ---------
+from collections import deque
+
+def bfs(graph, start):
+    visited = set()
+    queue = deque([start])
+
+    while queue:
+        node = queue.popleft()
+        if node not in visited:
+            print(node, end=" ")
+            visited.add(node)
+            for neighbor in graph[node]:
+                if neighbor not in visited:
+                    queue.append(neighbor)
+
+# Input and execution
+graph = {}
+edges = int(input("Enter the number of edges: "))
+for _ in range(edges):
+    u, v = input("Enter edge (u v): ").split()
+    graph.setdefault(u, []).append(v)
+    graph.setdefault(v, []).append(u)
+
+start_node = input("Enter start node: ")
+print("BFS traversal:")
+bfs(graph, start_node)
+
+
+# --------- Best First Search ---------
+import heapq
+
+class Graph:
+    def __init__(self):
+        self.graph = {}
+
+    def add_edge(self, u, v, cost):
+        self.graph.setdefault(u, []).append((v, cost))
+
+    def best_first_search(self, start, goal):
+        visited = set()
+        pq = [(0, start)]
+
+        while pq:
+            cost, node = heapq.heappop(pq)
+            print(node, end=" ")
+            if node == goal:
+                print("\nGoal reached!")
+                return
+            visited.add(node)
+            for neighbor, weight in self.graph.get(node, []):
+                if neighbor not in visited:
+                    heapq.heappush(pq, (weight, neighbor))
+        print("\nGoal not reachable.")
+
+# Input and execution
+g = Graph()
+edges = int(input("Enter number of edges: "))
+for _ in range(edges):
+    u, v, w = input("Enter edge (u v weight): ").split()
+    g.add_edge(u, v, int(w))
+
+start = input("Enter start node: ")
+goal = input("Enter goal node: ")
+print("Best First Search path:")
+g.best_first_search(start, goal)
+
+
+# --------- A* Search ---------
+import heapq
+
+def astar(graph, heuristics, start, goal):
+    open_list = [(heuristics[start], start)]
+    g_costs = {node: float('inf') for node in graph}
+    g_costs[start] = 0
+    parent = {}
+
+    while open_list:
+        _, current = heapq.heappop(open_list)
+        if current == goal:
+            path = []
+            while current:
+                path.append(current)
+                current = parent.get(current)
+            return path[::-1]
+
+        for neighbor in graph[current]:
+            new_cost = g_costs[current] + graph[current][neighbor]
+            if new_cost < g_costs[neighbor]:
+                g_costs[neighbor] = new_cost
+                parent[neighbor] = current
+                heapq.heappush(open_list, (new_cost + heuristics[neighbor], neighbor))
+
+    return None
+
+# Input and execution
+graph = {}
+nodes = set()
+edges = int(input("Enter number of edges: "))
+for _ in range(edges):
+    u, v, w = input("Enter edge (u v weight): ").split()
+    w = float(w)
+    graph.setdefault(u, {})[v] = w
+    graph.setdefault(v, {})  # Ensure bidirectional graph or update as needed
+    nodes.update([u, v])
+
+heuristic = {}
+for node in nodes:
+    heuristic[node] = float(input(f"Heuristic value for {node}: "))
+
+start = input("Enter start node: ")
+goal = input("Enter goal node: ")
+
+path = astar(graph, heuristic, start, goal)
+if path:
+    print("Path found:", path)
+else:
+    print("No path found.")
+
+# --------- Tic Tac Toe ---------
+import random
+
+def print_board(board):
+    for i, row in enumerate(board):
+        print(" | ".join(row))
+        if i < 2:
+            print("-" * 9)
+
+def check_winner(board, player):
+    # Rows, Columns, Diagonals
+    for row in board:
+        if all(cell == player for cell in row):
+            return True
+    for col in range(3):
+        if all(board[row][col] == player for row in range(3)):
+            return True
+    if all(board[i][i] == player for i in range(3)) or all(board[i][2 - i] == player for i in range(3)):
+        return True
+    return False
+
+def is_board_full(board):
+    return all(cell != ' ' for row in board for cell in row)
+
+def player_move(board):
+    while True:
+        try:
+            row, col = map(int, input("Enter your move (row col from 1 to 3): ").split())
+            row -= 1
+            col -= 1
+            if 0 <= row <= 2 and 0 <= col <= 2:
+                if board[row][col] == ' ':
+                    board[row][col] = 'X'
+                    break
+                else:
+                    print("Cell already taken.")
+            else:
+                print("Invalid input. Enter row and column between 1 and 3.")
+        except ValueError:
+            print("Enter valid numbers (e.g. 1 2)")
+
+def computer_move(board):
+    while True:
+        row = random.randint(0, 2)
+        col = random.randint(0, 2)
+        if board[row][col] == ' ':
+            board[row][col] = 'O'
+            break
+
+def main():
+    board = [[' ' for _ in range(3)] for _ in range(3)]
+    print("Welcome to Tic Tac Toe! You are 'X', computer is 'O'")
+    print_board(board)
+
+    while True:
+        # Player move
+        player_move(board)
+        print_board(board)
+        if check_winner(board, 'X'):
+            print("Congratulations! You win!")
+            break
+        if is_board_full(board):
+            print("It's a tie!")
+            break
+
+        # Computer move
+        print("Computer's turn...")
+        computer_move(board)
+        print_board(board)
+        if check_winner(board, 'O'):
+            print("Computer wins! Better luck next time.")
+            break
+        if is_board_full(board):
+            print("It's a tie!")
+            break
+
+if __name__ == "__main__":
+    main()
+
+//BFS, DFS, DLS in one program
+from collections import deque
+
+def bfs(graph, start):
+    visited = set()
+    queue = deque([start])
+    print("BFS Traversal:", end=" ")
+    while queue:
+        node = queue.popleft()
+        if node not in visited:
+            print(node, end=" ")
+            visited.add(node)
+            for neighbor in graph.get(node, []):
+                if neighbor not in visited:
+                    queue.append(neighbor)
+    print()
+
+def dfs(graph, start):
+    visited = set()
+    stack = [start]
+    print("DFS Traversal:", end=" ")
+    while stack:
+        node = stack.pop()
+        if node not in visited:
+            print(node, end=" ")
+            visited.add(node)
+            for neighbor in reversed(graph.get(node, [])):
+                if neighbor not in visited:
+                    stack.append(neighbor)
+    print()
+
+def dls(graph, start, limit):
+    visited = set()
+    stack = [(start, 0)]
+    print(f"DLS Traversal up to depth {limit}:", end=" ")
+    while stack:
+        node, depth = stack.pop()
+        if node not in visited and depth <= limit:
+            print(node, end=" ")
+            visited.add(node)
+            for neighbor in reversed(graph.get(node, [])):
+                if neighbor not in visited:
+                    stack.append((neighbor, depth + 1))
+    print()
+
+def main():
+    graph = {}
+    edges = int(input("Enter number of edges: "))
+    for _ in range(edges):
+        u, v = input("Enter edge (u v): ").split()
+        graph.setdefault(u, []).append(v)
+        graph.setdefault(v, []).append(u)
+
+    print("\nGraph:", graph)
+    start_node = input("Enter start node: ")
+
+    while True:
+        print("\nChoose Traversal:")
+        print("1. BFS")
+        print("2. DFS")
+        print("3. DLS")
+        print("4. Exit")
+        choice = input("Enter your choice (1-4): ")
+
+        if choice == '1':
+            bfs(graph, start_node)
+        elif choice == '2':
+            dfs(graph, start_node)
+        elif choice == '3':
+            depth = int(input("Enter depth limit for DLS: "))
+            dls(graph, start_node, depth)
+        elif choice == '4':
+            print("Exiting...")
+            break
+        else:
+            print("Invalid choice. Try again.")
+
+if __name__ == "__main__":
+    main()
+
+//Pattern detection using Neural network
+import torch 
+import torch.nn as nn 
+import numpy as np 
+import random 
+import string 
+ 
+# Character vocabulary and encoding 
+all_chars = string.ascii_lowercase + string.digits  # 'a-z0-9' 
+char_to_idx = {ch: i for i, ch in enumerate(all_chars)} 
+vocab_size = len(all_chars) 
+ 
+def encode_string(s): 
+    return torch.tensor([char_to_idx[c] for c in s], dtype=torch.long) 
+ 
+def generate_string_data(n_samples=1000, seq_len=6): 
+    X = [] 
+    y = [] 
+    for _ in range(n_samples): 
+        if random.random() > 0.5: 
+            # Repeating pattern 
+            repeat_unit_len = random.choice([1, 2, 3]) 
+            unit = ''.join(random.choices(all_chars, k=repeat_unit_len)) 
+            repeated = (unit * (seq_len // repeat_unit_len + 1))[:seq_len] 
+            X.append(encode_string(repeated)) 
+            y.append(1) 
+        else: 
+            # Random non-repeating string 
+            rand_str = ''.join(random.choices(all_chars, k=seq_len)) 
+            X.append(encode_string(rand_str)) 
+            y.append(0) 
+    X = torch.stack(X) 
+    y = torch.tensor(y, dtype=torch.float32).unsqueeze(1) 
+    return X, y 
+ 
+# Define model 
+class PatternDetector(nn.Module): 
+    def __init__(self, vocab_size, embed_dim, seq_len): 
+        super(PatternDetector, self).__init__() 
+        self.embedding = nn.Embedding(vocab_size, embed_dim) 
+        self.fc1 = nn.Linear(embed_dim * seq_len, 64) 
+        self.relu = nn.ReLU() 
+        self.fc2 = nn.Linear(64, 1) 
+ 
+    def forward(self, x): 
+        x = self.embedding(x)  # (batch, seq_len, embed_dim) 
+        x = x.view(x.size(0), -1)  # flatten 
+        x = self.relu(self.fc1(x)) 
+        x = self.fc2(x)  # no sigmoid here 
+        return x 
+ 
+# Parameters 
+SEQ_LEN = 6 
+embed_dim = 10 
+X, y = generate_string_data(seq_len=SEQ_LEN) 
+model = PatternDetector(vocab_size, embed_dim, SEQ_LEN) 
+ 
+# Loss and optimizer 
+criterion = nn.BCEWithLogitsLoss() 
+optimizer = torch.optim.Adam(model.parameters(), lr=0.01) 
+ 
+# Training loop 
+for epoch in range(100): 
+    model.train() 
+    output = model(X) 
+    loss = criterion(output, y) 
+    optimizer.zero_grad() 
+    loss.backward() 
+    optimizer.step() 
+    if (epoch + 1) % 10 == 0: 
+        predictions = torch.sigmoid(output) 
+        acc = ((predictions > 0.5).float() == y).float().mean() 
+        print(f"Epoch [{epoch+1}/100] Loss: {loss.item():.4f} | Accuracy: {acc.item():.4f}") 
+ 
+# Prediction function 
+def predict_string_pattern(s): 
+    s = s.lower() 
+    if len(s) != SEQ_LEN or any(c not in char_to_idx for c in s): 
+        print(f"Input must be alphanumeric string of length {SEQ_LEN}") 
+        return 
+    input_tensor = encode_string(s).unsqueeze(0) 
+    with torch.no_grad(): 
+        model.eval() 
+        logits = model(input_tensor) 
+        pred = torch.sigmoid(logits) 
+        print(f"Input: {s}") 
+        print("Pattern Detected" if pred.item() > 0.5 else "Pattern Not Detected") 
+ 
+# Interactive loop 
+while True: 
+    user_input = input(f"\nEnter an alphanumeric string of length {SEQ_LEN} (or type 'exit'): ").strip() 
+    if user_input.lower() == "exit": 
+        break 
+    predict_string_pattern(user_input)
+
+//Requirements to run:
+pip install torch
+
+
+
+PROLOG codes
+//Basic Facts and Rules
+% Simple facts
+likes_cook(somesh, samosa).
+eats(somesh, fruits).
+plays(saish, bgmi).
+food(gobi).
+
+//Room Connectivity and Contents
+% Rooms and doors
+room(kitchen).
+room(hall).
+room(bedroom).
+room(balcony).
+room(dining).
+
+door(kitchen, hall).
+door(hall, kitchen).
+door(hall, balcony).
+door(balcony, hall).
+door(hall, dining).
+door(dining, hall).
+door(dining, bedroom).
+door(bedroom, dining).
+
+% Contents in rooms
+contents(kitchen, utensils).
+contents(hall, [tv, sofa]).
+contents(dining, [chair, table]).
+contents(bedroom, [bed, wardrobe]).
+contents(balcony, shoerack).
+
+% Two-way connection
+connect(X, Y) :- door(X, Y), door(Y, X).
+
+% Find connected rooms and what they contain
+find_connected_rooms(X, Y, Z) :- connect(X, Y), contents(Y, Z).
+
+// this is when u want output while running:
+//to find what room is connected to hall and what it contains:
+?- find_connected_rooms(hall, Y, Z).
+Check if two rooms are connected:
+?- connect(hall, kitchen).
+true.
+
+
+?- connect(kitchen, bedroom).
+false.
+
+
+Get contents of a room:
+?- contents(hall, What).
+What = [tv, sofa].
+
+
+
+//Diagnosis System
+% Symptoms for flu, cold, fungal infection
+symptom(flu).
+symptom(fungal_infection).
+symptom(cold).
+
+flu(X) :-
+    has_symptom(X, fever),
+    has_symptom(X, cough),
+    has_symptom(X, fatigue),
+    has_symptom(X, body_aches),
+    has_symptom(X, sore_throat),
+    has_symptom(X, runny_nose).
+
+cold(X) :-
+    has_symptom(X, cough),
+    has_symptom(X, sore_throat),
+    has_symptom(X, stuffy_nose),
+    has_symptom(X, sneezing),
+    has_symptom(X, mild_fever).
+
+fungal_infection(X) :-
+    has_symptom(X, redness),
+    has_symptom(X, itching),
+    has_symptom(X, scaling).
+
+% Ask the user about symptoms
+has_symptom(Person, Symptom) :-
+    ask(Person, Symptom),
+    response(Person, Symptom, yes).
+
+ask(Person, Symptom) :-
+    format('Does ~w have ~w? (yes/no): ', [Person, Symptom]),
+    read(Response),
+    nl,
+    assert(response(Person, Symptom, Response)).
+
+% Diagnosing
+diagnose(Person) :-
+    (   flu(Person) ->
+        format('~w likely has the flu.~n', [Person])
+    ;   fungal_infection(Person) ->
+        format('~w likely has a fungal infection.~n', [Person])
+    ;   cold(Person) ->
+        format('~w likely has a cold.~n', [Person])
+    ;   format('Unable to diagnose.~n')
+    ).
+
+% Clear stored responses (use before re-diagnosis)
+clear_responses :- retractall(response(_, _, _)).
+
+// this is when u want output while running:
+//To diagnose:
+?- diagnose(john).
+
+
+//Clear memory (if testing again):
+?- clear_responses.
+
+//User Validation using repeat
+% Predefined valid user
+valid_user(john, 'password123').
+valid_user(Ronaldo, '1234').
+valid_user(admin, 'admin').
+
+% Start point
+start :-
+    write('Welcome to the User Login System'), nl,
+    login.
+
+% Login logic using repeat
+login :-
+    repeat,
+    write('Enter Username: '),
+    read(User),
+    write('Enter Password: '),
+    read(Password),
+    ( valid_user(User, Password) ->
+        write('Login successful!'), nl, !
+    ;
+        write('Invalid credentials. Try again.'), nl,
+        fail
+    ).
+
+// this is when u want output while running:
+//Load it in SWI-Prolog:
+?- [login].
+
+
+//Start the program:
+?- start.
+
+//XOR Gate using Neural Network in Prolog
+% Activation function - Step function
+activation(X, 1) :- X >= 0, !.
+activation(_, 0).
+
+% Neuron output with weights and bias
+neuron(Input1, Input2, W1, W2, Bias, Output) :-
+    Sum is Input1 * W1 + Input2 * W2 + Bias,
+    activation(Sum, Output).
+
+% XOR Neural Network with 2 hidden neurons and 1 output neuron
+% Pre-trained weights (manually tuned)
+xor_nn(Input1, Input2, Output) :-
+    % Hidden layer
+    neuron(Input1, Input2, 20, 20, -10, Hidden1),  % Acts like an OR gate
+    neuron(Input1, Input2, -20, -20, 30, Hidden2), % Acts like a NAND gate
+
+    % Output layer (weights to combine OR and NAND to XOR)
+    neuron(Hidden1, Hidden2, 20, 20, -30, Output).
+
+% Entry point
+test_xor :-
+    member((A, B), [(0,0), (0,1), (1,0), (1,1)]),
+    xor_nn(A, B, Out),
+    format("Input: ~w, ~w => Output: ~w~n", [A, B, Out]),
+    fail.
+test_xor.  % To stop after all cases are printed
+
+// this is when u want output while running:
+//Open SWI-Prolog and load the file:
+?- [xor_nn].
+
+
+//Run the test:
+?- test_xor.

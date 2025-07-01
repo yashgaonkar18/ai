@@ -1,0 +1,37 @@
+%{
+    #include <stdio.h>
+    #include <string.h>
+
+    int count = 0;
+    char word_to_find[100];
+%}
+
+%%
+[a-zA-Z0-9]+ {
+    if (strcmp(yytext, word_to_find) == 0) {
+        count++;
+    }
+}
+.|\n  ;
+%%
+
+int yywrap() {
+    return 1;
+}
+
+int main() {
+    const char *searchWord = "space";  
+    yyin = fopen("search.txt", "r");
+    
+    if (!yyin) {
+        printf("Error opening file.\n");
+        return 1;
+    }
+
+    strcpy(word_to_find, searchWord);
+    yylex();
+    fclose(yyin);
+    
+    printf("The word '%s' appeared %d times in the file 'search.txt'.\n", searchWord, count);
+    return 0;
+}A

@@ -1,0 +1,24 @@
+%option noyywrap
+%{
+	#include<stdio.h>
+	int k=0, i=0, o=0, s=0;
+%}
+
+%%
+"if"|"else"|"while"|"for"|"do"|"int"|"float"|"char"|"double"|"return"    {k++;}
+[a-zA-Z][a-zA-Z0-9_]*                                                    {i++;}
+"<="|"=>"|"=="|"="|"++"|"-"|"*"|"+"|"/"                                  {o++;}
+[(),;{}.]                                                                {s++;}
+\"[^\"\n]*\"
+.                                                                        {}
+%%
+int main()
+{
+        yylex();
+	printf("Total Tokens:\n");
+	printf("Keywords:%d\n",k);
+	printf("Identifiers:%d\n",i);
+	printf("Operators:%d\n",o);
+	printf("Separatord:%d\n",s);
+	return 0;
+}

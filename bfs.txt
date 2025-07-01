@@ -1,0 +1,48 @@
+def best_first_search(graph, heuristics, start, goal):
+    visited = []
+    queue = [(start, heuristics[start])]
+
+    while queue:
+        # Sort queue based on heuristic (smallest first)
+        queue.sort(key=lambda x: x[1])
+        node, _ = queue.pop(0)
+        visited.append(node)
+
+        if node == goal:
+            return visited
+
+        for neighbor in graph.get(node, []):
+            if neighbor not in visited:
+                queue.append((neighbor, heuristics[neighbor]))
+
+    return None
+
+# -------- User Input --------
+graph = {}
+heuristics = {}
+
+n = int(input("Enter number of edges: "))
+print("Enter edges as: from to")
+
+for _ in range(n):
+    u, v = input().split()
+    graph.setdefault(u, []).append(v)
+
+m = int(input("Enter number of heuristic values: "))
+print("Enter heuristic values as: node value")
+
+for _ in range(m):
+    node, value = input().split()
+    heuristics[node] = int(value)
+
+start = input("Enter start node: ")
+goal = input("Enter goal node: ")
+
+# -------- Run Search --------
+path = best_first_search(graph, heuristics, start, goal)
+
+# -------- Output --------
+if path:
+    print("Visited path:", " -> ".join(path))
+else:
+    print("Goal not reachable.")

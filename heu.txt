@@ -1,0 +1,53 @@
+def a_star_search(graph, heuristics, start, goal):
+    open_list = [(start, heuristics[start], 0, [start])]  # (node, f(n), g(n), path)
+    closed_set = set()
+
+    while open_list:
+        # Sort by f(n) = g + h
+        open_list.sort(key=lambda x: x[1])
+        current, f_val, g_val, path = open_list.pop(0)
+
+        if current == goal:
+            return path, g_val
+
+        closed_set.add(current)
+
+        for neighbor, cost in graph.get(current, []):
+            if neighbor not in closed_set:
+                g = g_val + cost  # Total cost from start to neighbor
+                h = heuristics.get(neighbor, float('inf'))
+                f = g + h
+                open_list.append((neighbor, f, g, path + [neighbor]))
+
+    return None, None
+# -------- User Input --------
+graph = {}
+heuristics = {}
+
+n = int(input("Enter number of edges: "))
+print("Enter edges as: from to cost")
+
+for _ in range(n):
+    u, v, c = input().split()
+    c = int(c)
+    graph.setdefault(u, []).append((v, c))
+
+m = int(input("Enter number of heuristic values: "))
+print("Enter heuristic values as: node value")
+
+for _ in range(m):
+    node, value = input().split()
+    heuristics[node] = int(value)
+
+start = input("Enter start node: ")
+goal = input("Enter goal node: ")
+
+# -------- Run A* Search --------
+path, cost = a_star_search(graph, heuristics, start, goal)
+
+# -------- Output --------
+if path:
+    print("Path found:", " -> ".join(path))
+    print("Total cost:", cost)
+else:
+    print("Goal not reachable.")

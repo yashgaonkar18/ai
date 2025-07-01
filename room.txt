@@ -1,0 +1,63 @@
+room (balcony, [chair, shoerack]).
+
+room(living_room, [sofa, tv, lamp]).
+
+room(bedroom, [bed, wardrobe, table]).
+
+room(kitchen, [fridge, stove, sink]).
+
+room(dining_room, [table, chairs]).
+
+room(store_room, [shelves, boxes]).
+
+door (balcony, living_room).
+
+door(living_room, balcony).
+
+door(living_room, kitchen).
+
+door(kitchen, living_room).
+
+door(living_room, dining_room).
+
+door(dining_room, living_room).
+
+door(living_room, bedroom).
+
+door (bedroom, living_room).
+
+door (kitchen, dining_room).
+
+door(dining_room, kitchen).
+
+door(store_room, kitchen).
+
+door(kitchen, store_room).
+
+items_in_room(Room) :-
+
+room(Room, Items),
+
+write('Items in '), write(Room), write(': '), write(Items), nl.
+
+connecting_rooms (Room):-
+
+door (Room, ConnectingRoom),
+
+write('Connected to '), write(ConnectingRoom), nl,
+
+write('Items in '), write(ConnectingRoom), write(': '),
+
+room(ConnectingRoom, Items), write (Items), nl,
+
+fail.
+
+start :-
+
+write('Enter current room location: '),
+
+read(Room),
+
+items_in_room(Room),
+
+connecting_rooms (Room).

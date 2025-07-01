@@ -1,0 +1,17 @@
+%option noyywrap
+%{
+	#include<stdio.h>
+	int lineno = 1;
+%}
+line .*\n
+%%
+{line} { printf("%5d %s",lineno,yytext);
+         lineno++;
+       }
+%%
+int main()
+{
+        yyin=fopen("abc.txt", "r");
+        yylex();
+	return 0;
+}

@@ -1,0 +1,16 @@
+%option noyywrap
+%{
+	#include<stdio.h>
+	int line = 0;
+%}
+
+%%
+\n line++;
+%%
+int main()
+{
+       yyin=fopen("yash.txt","r");
+       yylex();
+       printf("Number of lines are %d\n",line);
+       return 0;
+}

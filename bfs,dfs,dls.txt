@@ -1,0 +1,139 @@
+def depth_limited_search(graph, start, goal, limit):
+    def recursive_dls(node, goal, limit, path, visited):
+        if node == goal:
+            return path
+        if limit <= 0:
+            return None
+        visited.add(node)
+        for neighbor in graph.get(node, []):
+            if neighbor not in visited:
+                result = recursive_dls(neighbor, goal, limit - 1, path + [neighbor], visited)
+                if result is not None:
+                    return result
+        return None
+
+    return recursive_dls(start, goal, limit, [start], set())
+
+
+# User input
+graph = {}
+n = int(input("Enter number of edges in the graph: "))
+print("Enter edges in format: source destination")
+
+for _ in range(n):
+    u, v = input().split()
+    if u not in graph:
+        graph[u] = []
+    graph[u].append(v)
+
+start = input("Enter start node: ")
+goal = input("Enter goal node: ")
+limit = int(input("Enter depth limit: "))
+
+result = depth_limited_search(graph, start, goal, limit)
+
+if result:
+    print("Path found:", ' -> '.join(result))
+else:
+    print("No path found within depth limit.")
+
+
+//
+visited = []  # List to keep track of visited nodes
+queue = []    # Initialize a queue
+graph = {}    # The graph structure with edge weights
+
+def bfs(visited, graph, node):  # Function for BFS
+    visited.append(node)
+    queue.append(node)
+
+    while queue:
+        m = queue.pop(0)  # Pop the first element from the queue
+        print(f"Node: {m}, Neighbors: ", end="")  # Print the node
+        neighbors = graph[m]
+        for neighbour, weight in neighbors:
+            print(f"{neighbour}(weight: {weight})", end=" ")
+            if neighbour not in visited:
+                visited.append(neighbour)
+                queue.append(neighbour)
+        print()  # Print a newline after printing all neighbors
+
+# Parse the input to create the graph
+graph_input = input("Enter the graph as adjacency list with weights (e.g., '3:4,2;5,1 5:4,2,3;6,3 4:1;7,2'): ").strip()
+
+# Constructing the graph from input
+for item in graph_input.split():
+    key, value = item.split(':')
+    neighbors = value.split(';')
+    # Filter out any empty or invalid neighbor-weight pairs
+    graph[key] = [(neigh.split(',')[0], int(neigh.split(',')[1])) for neigh in neighbors if ',' in neigh]
+
+# Ensure all nodes are present in the graph
+for node in graph.keys():
+    if node not in visited:
+        graph.setdefault(node, [])
+
+# Ensure any missing nodes with no edges are included
+for item in graph_input.split():
+    key, value = item.split(':')
+    for neighbour in value.split(';'):
+        for neigh in neighbour.split(','):
+            graph.setdefault(neigh.split(',')[0], [])
+
+# Input the starting node for BFS
+start_node = input("Enter the starting node for BFS: ").strip()
+
+print("\nFollowing is the Breadth-First Search:")
+bfs(visited, graph, start_node)  # Function calling BFS
+
+
+//
+import networkx as nx
+import matplotlib.pyplot as plt
+
+visited = []  # List to keep track of visited nodes
+
+def dfs(visited, graph, node):  # Function for DFS
+    visited.append(node)
+    print(node, end=" ")  # Print the node
+
+    for neighbour in graph[node]:
+        if neighbour not in visited:
+            dfs(visited, graph, neighbour)  # Recur for unvisited neighbors
+
+def draw_graph(graph):
+    G = nx.DiGraph()  # Create a directed graph using NetworkX
+    for node, neighbors in graph.items():
+        for neighbour in neighbors:
+            G.add_edge(node, neighbour)  # Add edges to the graph
+
+    plt.figure(figsize=(8, 6))
+    nx.draw_networkx(G, with_labels=True, node_size=700, node_color="skyblue", font_weight="bold", font_size=10)
+    plt.title("Graph Visualization", fontsize=14)
+    plt.show()
+
+graph_input = input("Enter the graph as adjacency list (e.g., '3:4,5 5:4,2,3 4:1'): ").strip()
+graph = {}
+
+for item in graph_input.split():
+    key, value = item.split(':')
+    graph[key] = value.split(',') if value else []
+
+for node in graph.keys():
+    if node not in visited:
+        graph.setdefault(node, [])
+
+for item in graph_input.split():
+    key, value = item.split(':')
+    for neighbour in value.split(','):
+        graph.setdefault(neighbour, [])
+
+start_node = input("Enter the starting node for DFS: ").strip()
+
+print("\nDrawing the graph...")
+draw_graph(graph)
+
+print(f"\nDFS Traversal starting from '{start_node}':")
+dfs(visited, graph, start_node)  
+
+
