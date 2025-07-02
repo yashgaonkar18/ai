@@ -1,0 +1,54 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+char prod[10][10];
+int n;
+
+void findFirst(char c) {
+    for (int i = 0; i < n; i++) {
+        if (prod[i][0] == c) {
+            if (!isupper(prod[i][3]))
+                printf("%c ", prod[i][3]);
+            else
+                findFirst(prod[i][3]);
+        }
+    }
+}
+
+void findFollow(char c) {
+    if (c == prod[0][0]) printf("$ ");
+    for (int i = 0; i < n; i++) {
+        for (int j = 3; prod[i][j]; j++) {
+            if (prod[i][j] == c && prod[i][j + 1] != '\0') {
+                if (!isupper(prod[i][j + 1]))
+                    printf("%c ", prod[i][j + 1]);
+                else
+                    findFirst(prod[i][j + 1]);
+            }
+        }
+    }
+}
+
+int main() {
+    printf("Enter number of productions: ");
+    scanf("%d", &n);
+    getchar();
+    for (int i = 0; i < n; i++) {
+        printf("Enter production %d: ", i + 1);
+        gets(prod[i]);
+    }
+
+    for (int i = 0; i < n; i++) {
+        char nonTerm = prod[i][0];
+        printf("FIRST(%c): ", nonTerm);
+        findFirst(nonTerm);
+        printf("\n");
+
+        printf("FOLLOW(%c): ", nonTerm);
+        findFollow(nonTerm);
+        printf("\n");
+    }
+
+    return 0;
+}
